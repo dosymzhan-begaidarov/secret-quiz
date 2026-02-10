@@ -268,19 +268,40 @@
         width: 8px;
         height: 14px;
         border-radius: 3px;
-        top: -10vh;
-        animation: confettiFall 1.6s ease-in forwards;
+        top: 50%;
+        opacity: 0.9;
         z-index: 9;
       }
 
-      @keyframes confettiFall {
+      .confetti.left {
+        left: -5vw;
+        animation: confettiLeft 1.8s ease-out forwards;
+      }
+
+      .confetti.right {
+        right: -5vw;
+        animation: confettiRight 1.8s ease-out forwards;
+      }
+
+      @keyframes confettiLeft {
         0% {
-          transform: translateY(-10vh) rotate(0deg);
-          opacity: 0.9;
+          transform: translate(0, -10vh) rotate(0deg);
+          opacity: 1;
         }
         100% {
-          transform: translateY(110vh) rotate(360deg);
+          transform: translate(110vw, 70vh) rotate(540deg);
+          opacity: 0;
+        }
+      }
+
+      @keyframes confettiRight {
+        0% {
+          transform: translate(0, -10vh) rotate(0deg);
           opacity: 1;
+        }
+        100% {
+          transform: translate(-110vw, 70vh) rotate(-540deg);
+          opacity: 0;
         }
       }
 
@@ -385,7 +406,7 @@
 
       <div class="step" data-step="2">
         <div class="content">
-          <h1>Pick which Korean dish are you usually associated the most</h1>
+          <h1 id="dish-title">Pick which Korean dish are you usually associated the most</h1>
           <div class="image-grid">
             <button
               class="image-option"
@@ -513,6 +534,7 @@
       }
 
       const steps = Array.from(document.querySelectorAll(".step"));
+      const dishTitle = document.getElementById("dish-title");
       const dishFeedback = document.getElementById("dish-feedback");
       const dateFeedback = document.getElementById("date-feedback");
       const finalMessage = document.getElementById("final-message");
@@ -521,6 +543,8 @@
       const musicToggle = document.getElementById("music-toggle");
       const musicEmbed = document.getElementById("music-embed");
       let musicUnmuted = false;
+      let selectedName = "";
+      let confettiLoop = null;
 
       let yesScale = 1;
       let noScale = 1;
@@ -553,6 +577,10 @@
 
         if (stepNumber !== 4) {
           resetFinalButtons();
+          if (confettiLoop) {
+            clearInterval(confettiLoop);
+            confettiLoop = null;
+          }
         }
 
         if (stepNumber === 2) {
@@ -571,6 +599,10 @@
 
       document.querySelectorAll(".choice-btn[data-next]").forEach((button) => {
         button.addEventListener("click", () => {
+          selectedName = button.textContent.trim();
+          if (dishTitle) {
+            dishTitle.textContent = `Ok ${selectedName}, then tell me Pick which Korean dish are you usually associated the most?`;
+          }
           const next = Number(button.dataset.next);
           showStep(next);
         });
@@ -587,7 +619,7 @@
         button.addEventListener("click", () => {
           const isCorrect = button.dataset.correct === "true";
           if (isCorrect) {
-            dishFeedback.textContent = "horray!!!!!!";
+            dishFeedback.textContent = "OFCOURSE ITS BULGOGI!!!!!";
             setTimeout(() => showStep(3), 500);
             return;
           }
@@ -603,7 +635,7 @@
           const message = button.dataset.message || "";
 
           if (isCorrect) {
-            dateFeedback.textContent = "horray!!!!!!";
+            dateFeedback.textContent = "ITS FRIDAYY!YYY!Y!Y!!!!";
             setTimeout(() => showStep(4), 500);
           } else {
             dateFeedback.textContent = message;
@@ -629,22 +661,31 @@
 
       yesBtn.addEventListener("click", () => {
         finalMessage.textContent = "Yay!! I knew it.";
-        launchConfetti();
+        startConfettiLoop();
       });
 
-      const launchConfetti = () => {
-        const colors = ["#ff4f9a", "#ff79b0", "#ffd166", "#ffffff", "#ffb6d5"];
-        const count = 800;
-        for (let i = 0; i < count; i += 1) {
-          const piece = document.createElement("div");
-          piece.className = "confetti";
-          piece.style.left = `${Math.random() * 100}vw`;
-          piece.style.background = colors[i % colors.length];
-          piece.style.animationDelay = `${Math.random() * 0.2}s`;
-          piece.style.transform = `rotate(${Math.random() * 360}deg)`;
-          document.body.appendChild(piece);
-          setTimeout(() => piece.remove(), 2000);
+      const startConfettiLoop = () => {
+        if (confettiLoop) {
+          return;
         }
+        const colors = ["#ff4f9a", "#ff79b0", "#ffd166", "#ffffff", "#ffb6d5"];
+        const burst = () => {
+          const count = 90;
+          for (let i = 0; i < count; i += 1) {
+            const piece = document.createElement("div");
+            const side = i % 2 === 0 ? "left" : "right";
+            piece.className = `confetti ${side}`;
+            piece.style.background = colors[i % colors.length];
+            piece.style.width = `${6 + Math.random() * 6}px`;
+            piece.style.height = `${10 + Math.random() * 10}px`;
+            piece.style.top = `${20 + Math.random() * 60}vh`;
+            piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(piece);
+            setTimeout(() => piece.remove(), 2200);
+          }
+        };
+        burst();
+        confettiLoop = setInterval(burst, 900);
       };
 
       const unmuteMusic = () => {
