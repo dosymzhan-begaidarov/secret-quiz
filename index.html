@@ -275,42 +275,21 @@
       .confetti {
         position: fixed;
         width: 14px;
-        height: 22px;
+        height: 20px;
         border-radius: 4px;
-        top: 50%;
         opacity: 0.95;
         z-index: 9;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.55);
+        animation: confettiPop 1.6s ease-out forwards;
       }
 
-      .confetti.left {
-        left: -5vw;
-        animation: confettiLeft 1.8s ease-out forwards;
-      }
-
-      .confetti.right {
-        right: -5vw;
-        animation: confettiRight 1.8s ease-out forwards;
-      }
-
-      @keyframes confettiLeft {
+      @keyframes confettiPop {
         0% {
-          transform: translate(0, -10vh) rotate(0deg);
+          transform: translate(0, 0) rotate(0deg) scale(0.8);
           opacity: 1;
         }
         100% {
-          transform: translate(110vw, 70vh) rotate(540deg);
-          opacity: 0;
-        }
-      }
-
-      @keyframes confettiRight {
-        0% {
-          transform: translate(0, -10vh) rotate(0deg);
-          opacity: 1;
-        }
-        100% {
-          transform: translate(-110vw, 70vh) rotate(-540deg);
+          transform: translate(var(--dx), var(--dy)) rotate(520deg) scale(1.05);
           opacity: 0;
         }
       }
@@ -587,10 +566,6 @@
 
         if (stepNumber !== 4) {
           resetFinalButtons();
-          if (confettiLoop) {
-            clearInterval(confettiLoop);
-            confettiLoop = null;
-          }
         }
 
         if (stepNumber === 2) {
@@ -671,7 +646,6 @@
 
       yesBtn.addEventListener("click", () => {
         finalMessage.textContent = "Yay!! I knew it.";
-        startConfettiLoop();
       });
 
       const startConfettiLoop = () => {
@@ -689,23 +663,34 @@
           "#caffbf",
         ];
         const burst = () => {
-          const count = 220;
+          const count = 140;
+          const originCount = 6;
+          const origins = Array.from({ length: originCount }, () => ({
+            x: Math.random() * window.innerWidth,
+            y: (0.15 + Math.random() * 0.6) * window.innerHeight,
+          }));
           for (let i = 0; i < count; i += 1) {
             const piece = document.createElement("div");
-            const side = i % 2 === 0 ? "left" : "right";
-            piece.className = `confetti ${side}`;
+            piece.className = "confetti";
+            const origin = origins[i % originCount];
             piece.style.background = colors[i % colors.length];
-            piece.style.width = `${10 + Math.random() * 12}px`;
-            piece.style.height = `${16 + Math.random() * 16}px`;
-            piece.style.top = `${20 + Math.random() * 60}vh`;
-            piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+            piece.style.width = `${10 + Math.random() * 14}px`;
+            piece.style.height = `${14 + Math.random() * 18}px`;
+            piece.style.left = `${origin.x}px`;
+            piece.style.top = `${origin.y}px`;
+            const dx = (Math.random() - 0.5) * 480;
+            const dy = 220 + Math.random() * 420;
+            piece.style.setProperty("--dx", `${dx}px`);
+            piece.style.setProperty("--dy", `${dy}px`);
             document.body.appendChild(piece);
             setTimeout(() => piece.remove(), 2200);
           }
         };
         burst();
-        confettiLoop = setInterval(burst, 700);
+        confettiLoop = setInterval(burst, 650);
       };
+
+      startConfettiLoop();
 
       const unmuteMusic = () => {
         if (musicUnmuted) {
