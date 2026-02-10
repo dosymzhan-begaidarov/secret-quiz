@@ -263,6 +263,27 @@
         top: -10px;
       }
 
+      .confetti {
+        position: fixed;
+        width: 8px;
+        height: 14px;
+        border-radius: 3px;
+        top: -10vh;
+        animation: confettiFall 1.6s ease-in forwards;
+        z-index: 9;
+      }
+
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(-10vh) rotate(0deg);
+          opacity: 0.9;
+        }
+        100% {
+          transform: translateY(110vh) rotate(360deg);
+          opacity: 1;
+        }
+      }
+
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -347,7 +368,7 @@
       id="music-embed"
       title="Background music"
       allow="autoplay"
-      src="https://www.youtube.com/embed/vZ3SmVpFSLQ?list=PLT3GBg-lVq0C7u_Vd3G4PYzBgb2DI9PdD&autoplay=1&loop=1&playlist=vZ3SmVpFSLQ&mute=1&playsinline=1"
+      src="https://www.youtube.com/embed/_QdMquVFNM0?list=RD_QdMquVFNM0&start=13&autoplay=1&loop=1&playlist=_QdMquVFNM0&mute=1&playsinline=1"
     ></iframe>
     <div class="card">
       <div class="step active" data-step="1">
@@ -566,8 +587,8 @@
         button.addEventListener("click", () => {
           const isCorrect = button.dataset.correct === "true";
           if (isCorrect) {
-            dishFeedback.textContent = "horray";
-            setTimeout(() => showStep(3), 1000);
+            dishFeedback.textContent = "horray!!!!!!";
+            setTimeout(() => showStep(3), 500);
             return;
           }
 
@@ -582,8 +603,8 @@
           const message = button.dataset.message || "";
 
           if (isCorrect) {
-            dateFeedback.textContent = "horray";
-            setTimeout(() => showStep(4), 1000);
+            dateFeedback.textContent = "horray!!!!!!";
+            setTimeout(() => showStep(4), 500);
           } else {
             dateFeedback.textContent = message;
           }
@@ -608,7 +629,23 @@
 
       yesBtn.addEventListener("click", () => {
         finalMessage.textContent = "Yay!! I knew it.";
+        launchConfetti();
       });
+
+      const launchConfetti = () => {
+        const colors = ["#ff4f9a", "#ff79b0", "#ffd166", "#ffffff", "#ffb6d5"];
+        const count = 80;
+        for (let i = 0; i < count; i += 1) {
+          const piece = document.createElement("div");
+          piece.className = "confetti";
+          piece.style.left = `${Math.random() * 100}vw`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDelay = `${Math.random() * 0.2}s`;
+          piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 2000);
+        }
+      };
 
       const unmuteMusic = () => {
         if (musicUnmuted) {
