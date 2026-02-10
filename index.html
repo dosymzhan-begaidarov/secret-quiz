@@ -566,6 +566,10 @@
 
         if (stepNumber !== 4) {
           resetFinalButtons();
+          if (confettiLoop) {
+            clearInterval(confettiLoop);
+            confettiLoop = null;
+          }
         }
 
         if (stepNumber === 2) {
@@ -646,6 +650,7 @@
 
       yesBtn.addEventListener("click", () => {
         finalMessage.textContent = "Yay!! I knew it.";
+        startConfettiLoop();
       });
 
       const startConfettiLoop = () => {
@@ -690,7 +695,6 @@
         confettiLoop = setInterval(burst, 650);
       };
 
-      startConfettiLoop();
 
       const unmuteMusic = () => {
         if (musicUnmuted) {
