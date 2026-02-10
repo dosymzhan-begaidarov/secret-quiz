@@ -81,7 +81,7 @@
 
       h1 {
         margin: 0 0 16px;
-        font-size: clamp(28px, 4vw, 40px);
+        font-size: clamp(24px, 3.4vw, 36px);
         text-shadow: 0 0 8px rgba(255, 79, 154, 0.5);
       }
 
@@ -249,8 +249,9 @@
 
       .music-toggle {
         position: fixed;
-        right: 16px;
-        bottom: 16px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
         z-index: 10;
         background: #fff;
         color: var(--pink-3);
@@ -260,6 +261,10 @@
         font-size: 14px;
         cursor: pointer;
         box-shadow: var(--glow);
+      }
+
+      .music-toggle.hidden {
+        display: none;
       }
 
       .music-embed {
@@ -326,6 +331,11 @@
         height: 140px;
         object-fit: cover;
         display: block;
+      }
+
+      .correct-flash {
+        outline: 3px solid #37d67a;
+        box-shadow: 0 0 12px rgba(55, 214, 122, 0.7);
       }
 
       .heart {
@@ -610,7 +620,11 @@
           const isCorrect = button.dataset.correct === "true";
           if (isCorrect) {
             dishFeedback.textContent = "OFCOURSE ITS BULGOGI!!!!!";
-            setTimeout(() => showStep(3), 500);
+            button.classList.add("correct-flash");
+            setTimeout(() => {
+              button.classList.remove("correct-flash");
+              showStep(3);
+            }, 500);
             return;
           }
 
@@ -626,7 +640,11 @@
 
           if (isCorrect) {
             dateFeedback.textContent = "ITS FRIDAYY!YYY!Y!Y!!!!";
-            setTimeout(() => showStep(4), 500);
+            button.classList.add("correct-flash");
+            setTimeout(() => {
+              button.classList.remove("correct-flash");
+              showStep(4);
+            }, 500);
           } else {
             dateFeedback.textContent = message;
           }
@@ -719,6 +737,7 @@
         }
         musicUnmuted = true;
         musicToggle.textContent = "Music on";
+        musicToggle.classList.add("hidden");
       };
 
       window.addEventListener("load", () => {
