@@ -72,7 +72,11 @@
         max-width: 520px;
         width: min(92vw, 520px);
         backdrop-filter: blur(6px);
-        min-height: 520px;
+        height: 86vh;
+        max-height: 720px;
+        min-height: 0;
+        display: flex;
+        align-items: stretch;
       }
 
       h1 {
@@ -192,26 +196,26 @@
       }
 
       .step {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transform: translateY(10px);
-        pointer-events: none;
-        transition: opacity 0.35s ease, transform 0.35s ease;
+        display: none;
+        width: 100%;
       }
 
       .step.active {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        animation: fadeInUp 0.35s ease;
       }
 
       .step .content {
-        min-height: 360px;
+        flex: 1;
+        min-height: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
         padding-bottom: 8px;
+        gap: 8px;
+        overflow-y: auto;
       }
 
       .nav-row {
@@ -257,6 +261,17 @@
         pointer-events: none;
         left: -10px;
         top: -10px;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .image-grid {
@@ -326,13 +341,13 @@
   </head>
   <body>
     <div class="sparkle-field" aria-hidden="true"></div>
-    <button class="music-toggle" id="music-toggle" type="button">Play music</button>
+    <button class="music-toggle" id="music-toggle" type="button">Unmute music</button>
     <iframe
       class="music-embed"
       id="music-embed"
       title="Background music"
       allow="autoplay"
-      src="https://www.youtube.com/embed/vZ3SmVpFSLQ?list=PLT3GBg-lVq0C7u_Vd3G4PYzBgb2DI9PdD&autoplay=0&loop=1&playlist=vZ3SmVpFSLQ"
+      src="https://www.youtube.com/embed/vZ3SmVpFSLQ?list=PLT3GBg-lVq0C7u_Vd3G4PYzBgb2DI9PdD&autoplay=1&loop=1&playlist=vZ3SmVpFSLQ&mute=1&playsinline=1"
     ></iframe>
     <div class="card">
       <div class="step active" data-step="1">
@@ -351,13 +366,25 @@
         <div class="content">
           <h1>Pick which Korean dish are you usually associated the most</h1>
           <div class="image-grid">
-            <button class="image-option" type="button" data-correct="false" aria-label="Tteokbokki">
+            <button
+              class="image-option"
+              type="button"
+              data-correct="false"
+              data-message="u sure? try again — and REMEMBER WHO YOU ARE!!!! MHHHMHHHMMMMM"
+              aria-label="Tteokbokki"
+            >
               <img
                 src="https://asianinspirations.com.au/wp-content/uploads/2021/09/R00397-Hot-Spicy-Tteokbokki.jpg"
                 alt="Tteokbokki"
               />
             </button>
-            <button class="image-option" type="button" data-correct="false" aria-label="Samgyupsal">
+            <button
+              class="image-option"
+              type="button"
+              data-correct="false"
+              data-message="not this one. try again — REMEMBER WHO YOU ARE????!!!! MHHHMHHHMMMMM"
+              aria-label="Samgyupsal"
+            >
               <img
                 src="https://hallyu.be/wp-content/uploads/2024/02/samgyupsal-thumbnail.jpg"
                 alt="Samgyupsal"
@@ -369,7 +396,13 @@
                 alt="Bulgogi"
               />
             </button>
-            <button class="image-option" type="button" data-correct="false" aria-label="Kimchi stew">
+            <button
+              class="image-option"
+              type="button"
+              data-correct="false"
+              data-message="nope. think harder — AND REMEMBER WHO YOU ARE!!!! MHHHMHHHMMMMM"
+              aria-label="Kimchi stew"
+            >
               <img
                 src="https://static.toiimg.com/thumb/82085026.cms?resizemode=4&width=1200"
                 alt="Kimchi stew"
@@ -466,7 +499,7 @@
       const yesBtn = document.getElementById("yes-btn");
       const musicToggle = document.getElementById("music-toggle");
       const musicEmbed = document.getElementById("music-embed");
-      let musicPlaying = false;
+      let musicUnmuted = false;
 
       let yesScale = 1;
       let noScale = 1;
@@ -533,12 +566,13 @@
         button.addEventListener("click", () => {
           const isCorrect = button.dataset.correct === "true";
           if (isCorrect) {
-            showStep(3);
+            dishFeedback.textContent = "horray";
+            setTimeout(() => showStep(3), 1000);
             return;
           }
 
-          dishFeedback.textContent =
-            "u sure? maybe you should try again – AND REMEMBER WHO YOU ARE????!!!! MHHHMHHHMMMMM";
+          const paraphrase = button.dataset.message || "";
+          dishFeedback.textContent = paraphrase;
         });
       });
 
@@ -548,7 +582,8 @@
           const message = button.dataset.message || "";
 
           if (isCorrect) {
-            showStep(4);
+            dateFeedback.textContent = "horray";
+            setTimeout(() => showStep(4), 1000);
           } else {
             dateFeedback.textContent = message;
           }
@@ -575,28 +610,26 @@
         finalMessage.textContent = "Yay!! I knew it.";
       });
 
-      const startMusic = () => {
-        if (musicPlaying) {
+      const unmuteMusic = () => {
+        if (musicUnmuted) {
           return;
         }
-        const src = musicEmbed.getAttribute("src");
-        if (src && src.includes("autoplay=0")) {
-          musicEmbed.setAttribute("src", src.replace("autoplay=0", "autoplay=1"));
-        } else if (src && !src.includes("autoplay=1")) {
-          musicEmbed.setAttribute("src", `${src}&autoplay=1`);
+        const src = musicEmbed.getAttribute("src") || "";
+        if (src.includes("mute=1")) {
+          musicEmbed.setAttribute("src", src.replace("mute=1", "mute=0"));
+        } else if (!src.includes("mute=0")) {
+          musicEmbed.setAttribute("src", `${src}&mute=0`);
         }
-        musicPlaying = true;
+        musicUnmuted = true;
         musicToggle.textContent = "Music on";
       };
 
       musicToggle.addEventListener("click", () => {
-        startMusic();
+        unmuteMusic();
       });
 
-      document.addEventListener("click", (event) => {
-        if (event.target !== musicToggle) {
-          startMusic();
-        }
+      document.addEventListener("click", () => {
+        unmuteMusic();
       });
     </script>
   </body>
